@@ -43,15 +43,22 @@ void ideal_gas_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   double sound_speed_squared,v,pressurebyenergy,pressurebyvolume;
   
  {
+  // Iterate ymin->ymax, xmin->xmax
   for (k=y_min;k<=y_max;k++) {
 #pragma ivdep
     for (j=x_min;j<=x_max;j++) {								 
+      // v = 1 / density
       v=1.0/density[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)];
+      // pressure = 0.4 * density * energy
       pressure[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]=(1.4-1.0)*density[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]
                                                                    *energy[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)];
+      // pressureByEnergy = 0.4 * density
       pressurebyenergy=(1.4-1.0)*density[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)];
+      // pressureByVolume = -density * pressure
       pressurebyvolume=-density[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]*pressure[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)];
+      // sound_speed_squared = v^2 * (pressure * pressureByEnergy - pressureByVolume)
       sound_speed_squared=v*v*(pressure[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]*pressurebyenergy-pressurebyvolume);
+      // sound_speed = sqrt(sound_speed_squared)
       soundspeed[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]=sqrt(sound_speed_squared);
     }
   }

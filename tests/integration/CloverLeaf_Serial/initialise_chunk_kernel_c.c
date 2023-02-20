@@ -56,62 +56,88 @@ void initialise_chunk_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
  {
 #pragma ivdep
+  // iterate xmin->xmax
   for (j=x_min-2;j<=x_max+3;j++) {
+    // vertexx = minx + dx(j-xmin)
+    // j-xmin is relative x in the iteration
     vertexx[FTNREF1D(j,x_min-2)]=min_x+d_x*(double)(j-x_min);
   }
 
 #pragma ivdep
+  // iterate xmin->xmax
   for (j=x_min-2;j<=x_max+3;j++) {
+    // vertexdx = dx
     vertexdx[FTNREF1D(j,x_min-2)]=d_x;
   }
 
 #pragma ivdep
+  // iterate ymin->ymax
   for (k=y_min-2;k<=y_max+3;k++) {
+    // vertexy = miny + dy(k-ymin)
+    // k-ymin is relative y in the iteration
     vertexy[FTNREF1D(k,y_min-2)]=min_y+d_y*(double)(k-y_min);
   }
 
 #pragma ivdep
+  // iterate ymin->ymax
   for (k=y_min-2;k<=y_max+3;k++) {
+    // vertexdy = dy
     vertexdy[FTNREF1D(k,y_min-2)]=d_y;
   }
 
 #pragma ivdep
+  // iterate xmin->xmax, cells (1 less item than vertex)
   for (j=x_min-2;j<=x_max+2;j++) {
+    // cellx = 0.5 * (vertexx + next vertexx)
+    // cellx = 0.5 * (sum of bordering vertices)
     cellx[FTNREF1D(j,x_min-2)]=0.5*(vertexx[FTNREF1D(j,x_min-2)]+vertexx[FTNREF1D(j+1,x_min-2)]);
   }
 
 #pragma ivdep
+  // iterate xmin->xmax, cells (1 less item than vertex)
   for (j=x_min-2;j<=x_max+2;j++) {
+    // celldx = dx
     celldx[FTNREF1D(j,x_min-2)]=d_x;
   }
 
 #pragma ivdep
+  // iterate ymin->ymax, cells (1 less item than vertex)
   for (k=y_min-2;k<=y_max+2;k++) {
+    // celly = 0.5 * (vertexy + next vertexy)
+    // celly = 0.5 * (sum of bordering vertices)
     celly[FTNREF1D(k,y_min-2)]=0.5*(vertexy[FTNREF1D(k,y_min-2)]+vertexy[FTNREF1D(k+1,x_min-2)]);
   }
 
 #pragma ivdep
+  // iterate ymin->ymax, cells (1 less item than vertex)
   for (k=y_min-2;k<=y_max+2;k++) {
-     celldy[FTNREF1D(k,y_min-2)]=d_y;
+    // celldy = dy
+    celldy[FTNREF1D(k,y_min-2)]=d_y;
   }
 
+  // iterate ymin->ymax, xmin->xmax (cellwise)
   for (k=y_min-2;k<=y_max+2;k++) {
 #pragma ivdep
     for (j=x_min-2;j<=x_max+2;j++) {
+        // volume = dx * dy
         volume[FTNREF2D(j,k,x_max+4,x_min-2,y_min-2)]=d_x*d_y;
     }
   }
 
+  // iterate ymin->ymax, xmin->xmax (cellwise)
   for (k=y_min-2;k<=y_max+2;k++) {
 #pragma ivdep
     for (j=x_min-2;j<=x_max+2;j++) {
+        // xarea = celldy (corresponding y (i.e. ignore x (= j)))
         xarea[FTNREF2D(j,k,x_max+5,x_min-2,y_min-2)]=celldy[FTNREF1D(k,y_min-2)];
     }
   }
 
+  // iterate ymin->ymax, xmin->xmax (cellwise)
   for (k=y_min-2;k<=y_max+2;k++) {
 #pragma ivdep
     for (j=x_min-2;j<=x_max+2;j++) {
+        // yarea = celldx (corresponding x (i.e. ignore y (= k)))
         yarea[FTNREF2D(j,k,x_max+4,x_min-2,y_min-2)]=celldx[FTNREF1D(j,x_min-2)];
     }
   }
